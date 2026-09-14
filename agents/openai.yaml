@@ -1,0 +1,7 @@
+interface:
+  display_name: "Lean App Development"
+  short_description: "Risk-based delivery for small production apps"
+  default_prompt: "Use $lean-app-development to implement this change with proportional design and verification."
+
+policy:
+  allow_implicit_invocation: true
