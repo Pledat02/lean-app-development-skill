@@ -2,7 +2,7 @@
 
 Skill Codex gọn nhẹ dành cho ứng dụng production quy mô nhỏ, thường khoảng 50-1000 người dùng. Skill chọn độ sâu công việc theo rủi ro thực tế thay vì áp dụng một quy trình enterprise cố định.
 
-Skill kết hợp bốn góc nhìn trong một luồng làm việc:
+Skill kết hợp bốn góc nhìn trong một luồng làm việc và có chế độ viết specification:
 
 - Product: kết quả, phạm vi và acceptance criteria.
 - Architecture: ranh giới, dữ liệu, failure mode và trade-off.
@@ -21,6 +21,7 @@ lean-app-development/
 └── references/
     ├── workflow.md
     ├── engineering-guardrails.md
+    ├── specification.md
     └── verification.md
 ```
 
@@ -80,6 +81,14 @@ $lean-app-development sửa lỗi form đăng nhập nhưng giữ nguyên API hi
 ```text
 $lean-app-development review migration này và đề xuất cách rollback an toàn
 ```
+
+Viết specification mà chưa triển khai:
+
+```text
+$lean-app-development viết spec cho chức năng đặt sân, lưu tại docs/specs/booking/spec.md
+```
+
+Spec mode tạo tài liệu có problem, scope, user flow, requirements, business rules, data/API impact, security, failure cases, acceptance criteria, verification strategy và open decisions. Một yêu cầu chỉ viết spec không tự động cho phép triển khai code.
 
 Skill cũng cho phép Codex tự kích hoạt khi yêu cầu phù hợp với mô tả trong `SKILL.md`.
 

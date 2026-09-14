@@ -1,6 +1,6 @@
 ---
 name: lean-app-development
-description: Build, change, fix, or review small production applications with risk-based requirements, architecture, implementation, and verification. Use for products serving roughly 50-1000 users when a lean alternative to enterprise delivery workflows is appropriate; do not use for hyperscale distributed platforms or work that requires a formal regulated lifecycle.
+description: Write specifications and build, change, fix, or review small production applications with risk-based requirements, architecture, implementation, and verification. Use for products serving roughly 50-1000 users when a lean alternative to enterprise delivery workflows is appropriate; do not use for hyperscale distributed platforms or work that requires a formal regulated lifecycle.
 ---
 
 # Lean App Development
@@ -37,12 +37,23 @@ Apply these perspectives without requiring separate agents:
 
 Use repository-provided specialist or tester agents when project instructions require them. Do not create a multi-agent process merely because the roles exist.
 
+## Specification mode
+
+When the user asks for a spec, requirements document, technical specification, or a durable contract before implementation, read [references/specification.md](references/specification.md).
+
+- Write the spec before code when the request is spec-only, or when a Standard/Critical feature needs decisions preserved across sessions.
+- Use the repository's established spec location. Otherwise default to `docs/specs/<feature-slug>/spec.md`.
+- Keep Quick work inline unless the user explicitly asks for a written spec.
+- Ground every requirement in the user request, project rules, existing behavior, or a necessary safety invariant.
+- Present unresolved product or architecture choices explicitly; do not invent them to make the document look complete.
+- For a spec-only request, stop after delivering the document and review findings. Do not infer authorization to implement it.
+
 ## Working contract
 
 1. Restate the desired outcome internally and surface only assumptions that materially affect it.
 2. Ask concise questions only when the answer would change scope, architecture, safety, cost, or external behavior. Otherwise proceed with a reasonable stated assumption.
 3. For existing systems, identify affected files, consumers, tests, contracts, data, and deployment surfaces before editing.
-4. Plan at the smallest useful level. A short change needs no formal design artifact; a risky cross-cutting change needs explicit decisions and rollback.
+4. Plan at the smallest useful level. A short change needs no formal design artifact; a risky cross-cutting change needs explicit decisions and rollback. Create a durable spec only under Specification mode.
 5. Implement the smallest cohesive vertical slice. Avoid speculative infrastructure and unrelated cleanup.
 6. Verify in proportion to risk and fix confirmed regressions within scope. Read [references/verification.md](references/verification.md) whenever source code or deployable configuration changes.
 7. Hand off with outcome, important decisions, verification evidence, and remaining risks or follow-ups.
