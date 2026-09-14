@@ -14,40 +14,59 @@ Không phụ thuộc AWS, Amazon Bedrock, binary riêng, hooks, MCP server hoặ
 ## Cấu trúc
 
 ```text
-lean-app-development/
-├── SKILL.md
-├── agents/
-│   └── openai.yaml
-└── references/
-    ├── workflow.md
-    ├── engineering-guardrails.md
-    ├── specification.md
-    └── verification.md
+lean-app-development-skill/
+├── README.md
+└── skills/
+    └── lean-app-development/
+        ├── SKILL.md
+        ├── agents/
+        │   └── openai.yaml
+        └── references/
+            ├── workflow.md
+            ├── engineering-guardrails.md
+            ├── specification.md
+            └── verification.md
 ```
 
 ## Cài đặt từ repository private
 
-Yêu cầu GitHub CLI đã đăng nhập bằng tài khoản có quyền đọc repository:
+Yêu cầu Git hoặc GitHub CLI đã được xác thực bằng tài khoản có quyền đọc repository. Cài vào thư mục skill cá nhân trên Windows:
 
 ```powershell
 gh auth login
-gh repo clone Pledat02/lean-app-development-skill "$env:USERPROFILE\.codex\skills\lean-app-development"
+python "$env:USERPROFILE\.codex\skills\.system\skill-installer\scripts\install-skill-from-github.py" `
+  --repo Pledat02/lean-app-development-skill `
+  --path skills/lean-app-development `
+  --method git
 ```
 
 Trên macOS hoặc Linux:
 
 ```bash
 gh auth login
-gh repo clone Pledat02/lean-app-development-skill "$HOME/.codex/skills/lean-app-development"
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+  --repo Pledat02/lean-app-development-skill \
+  --path skills/lean-app-development \
+  --method git
 ```
 
 Khởi động lại Codex sau khi cài để danh sách skill được nạp lại.
+
+Để vendor skill vào một project và commit cùng source code, chạy từ root project:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\.system\skill-installer\scripts\install-skill-from-github.py" `
+  --repo Pledat02/lean-app-development-skill `
+  --path skills/lean-app-development `
+  --dest .agents/skills `
+  --method git
+```
 
 Bạn cũng có thể yêu cầu Codex dùng skill installer:
 
 ```text
 Use $skill-installer to install the skill from the private GitHub repository
-https://github.com/Pledat02/lean-app-development-skill
+https://github.com/Pledat02/lean-app-development-skill/tree/main/skills/lean-app-development
 ```
 
 Codex hoặc GitHub CLI phải được xác thực với tài khoản có quyền truy cập repository private.
