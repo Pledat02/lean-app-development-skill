@@ -1,7 +1,7 @@
 interface:
   display_name: "Lean App Development"
   short_description: "Risk-based delivery for small production apps"
-  default_prompt: "Use $lean-app-development to implement this change with proportional design and verification."
+  default_prompt: "Use $lean-app-development to produce an SRS, create a traceable design before coding, then verify the implementation in a separate context with edge-case-first UI/E2E coverage when relevant."
 
 policy:
   allow_implicit_invocation: true

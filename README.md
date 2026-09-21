@@ -2,12 +2,12 @@
 
 Skill Codex gọn nhẹ dành cho ứng dụng production quy mô nhỏ, thường khoảng 50-1000 người dùng. Skill chọn độ sâu công việc theo rủi ro thực tế thay vì áp dụng một quy trình enterprise cố định.
 
-Skill kết hợp bốn góc nhìn trong một luồng làm việc và có chế độ viết specification:
+Skill kết hợp bốn góc nhìn trong hai context độc lập và có chế độ viết SRS:
 
 - Product: kết quả, phạm vi và acceptance criteria.
-- Architecture: ranh giới, dữ liệu, failure mode và trade-off.
+- Architecture/Design: chuyển requirement thành component, contract, dữ liệu, state flow, failure mode và implementation slice có truy vết.
 - Development: đọc code trước khi sửa, theo convention và thay đổi tối thiểu.
-- Quality: kiểm thử dựa trên yêu cầu và rủi ro.
+- Quality: context kiểm thử độc lập, ưu tiên edge/failure case và dùng UI/E2E khi phù hợp.
 
 Không phụ thuộc AWS, Amazon Bedrock, binary riêng, hooks, MCP server hoặc workflow engine. Skill sử dụng model/provider đang được Codex cấu hình.
 
@@ -24,7 +24,10 @@ lean-app-development-skill/
         └── references/
             ├── workflow.md
             ├── engineering-guardrails.md
+            ├── design.md
+            ├── independent-verification.md
             ├── specification.md
+            ├── ui-e2e-testing.md
             └── verification.md
 ```
 
@@ -104,10 +107,33 @@ $lean-app-development review migration này và đề xuất cách rollback an t
 Viết specification mà chưa triển khai:
 
 ```text
-$lean-app-development viết spec cho chức năng đặt sân, lưu tại docs/specs/booking/spec.md
+$lean-app-development viết SRS cho chức năng đặt sân, lưu tại docs/specs/booking/srs.md
 ```
 
-Spec mode tạo tài liệu có problem, scope, user flow, requirements, business rules, data/API impact, security, failure cases, acceptance criteria, verification strategy và open decisions. Một yêu cầu chỉ viết spec không tự động cho phép triển khai code.
+Spec mode tạo SRS theo hướng ISO/IEC/IEEE 29148 với document control, system boundary, interfaces, requirement IDs, non-functional requirements, edge/failure behavior, verification và requirements traceability matrix. Tầng Design tiếp theo giữ nguyên requirement IDs và chuyển chúng thành component, interface, data/state flow, UI states, failure handling và vertical implementation slices trước khi coding. Một yêu cầu chỉ viết SRS hoặc Design không tự động cho phép triển khai code.
+
+Với thay đổi UI hoặc user journey:
+
+```text
+$lean-app-development triển khai form checkout, kiểm tra UI và E2E; ưu tiên validation, timeout, duplicate submit và recovery
+```
+
+## Hai context độc lập
+
+Mọi thay đổi source code hoặc deployable configuration dùng hai context:
+
+```text
+Development context
+  → SRS/acceptance criteria
+  → traceable Design gate
+  → implementation → focused checks
+  → artifact/diff handoff
+Verification context mới
+  → SRS + Design inspection → edge/failure tests → UI/E2E → happy-path smoke
+  → findings → Development fixes → Verification rerun
+```
+
+Tester nhận yêu cầu, SRS, Design, artifact hoặc diff, lệnh chính thức và constraint môi trường. Tester không nhận private reasoning hoặc kết luận của Dev. Nếu runtime không tạo được context thứ hai, skill phải báo independent verification chưa được thực hiện.
 
 Skill cũng cho phép Codex tự kích hoạt khi yêu cầu phù hợp với mô tả trong `SKILL.md`.
 
@@ -118,7 +144,7 @@ Skill cũng cho phép Codex tự kích hoạt khi yêu cầu phù hợp với m�
 Dành cho tài liệu, nội dung, styling, cấu hình nhỏ hoặc bug cô lập:
 
 ```text
-Inspect → Change → Focused verification → Handoff
+Inspect → Change → Developer check → Independent verification → Handoff
 ```
 
 ### Standard
@@ -127,7 +153,8 @@ Dành cho feature/refactor thông thường:
 
 ```text
 Context → Acceptance criteria → Impact/design
-→ Implement vertical slice → Verify → Handoff
+→ Traceable design gate → Implement vertical slice
+→ Independent edge-first verification → Handoff
 ```
 
 ### Critical
@@ -136,7 +163,8 @@ Dành cho authentication, authorization, payment, migration, concurrency, dữ l
 
 ```text
 Requirements → Risks and rollback → Approval when needed
-→ Implement → Broader verification → Deployment readiness
+→ Traceable design readiness → Implement
+→ Independent UI/E2E and broader verification → Deployment readiness
 ```
 
 Số lượng người dùng chỉ là tín hiệu về capacity. Một hệ thống 50 người dùng vẫn thuộc mức Critical nếu lỗi có thể làm mất tiền, lộ dữ liệu hoặc tạo booking trùng.
@@ -150,7 +178,7 @@ Số lượng người dùng chỉ là tín hiệu về capacity. Một hệ th�
 - Database, ORM và identity provider.
 - Quy tắc migration, authorization và logging.
 - Lệnh lint, build và test chính thức.
-- Tester agent bắt buộc sau khi sửa frontend/backend.
+- Lệnh UI/E2E, browser matrix, viewport và fixture conventions của project.
 
 Project instructions được ưu tiên hơn các mặc định chung của skill này.
 
