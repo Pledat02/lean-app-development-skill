@@ -1,103 +1,165 @@
-# Specification mode
+# SRS specification mode
 
-Create a specification that is precise enough to guide implementation and verification without becoming an enterprise requirements package. Use the project's established format and location when one exists; otherwise write `docs/specs/<feature-slug>/spec.md`.
+Create a Software Requirements Specification aligned with the requirements-engineering principles of ISO/IEC/IEEE 29148:2018. This skill does not claim formal certification or reproduce the standard. It produces a practical SRS whose requirements are necessary, unambiguous, feasible, singular, verifiable, and traceable.
+
+Normative reference profile: [ISO/IEC/IEEE 29148:2018 — Requirements engineering](https://www.iso.org/standard/72089.html). Check the project's mandated edition before claiming standards conformance.
+
+Use the project's established format and location when one exists; otherwise write `docs/specs/<feature-slug>/srs.md`. If a repository mandates a different requirements standard, follow it and record the variance.
 
 ## Determine depth
 
-- **Quick**: do not create a spec unless the user explicitly requests one. Keep it to the outcome, constraints, and acceptance criteria.
-- **Standard**: cover user behavior, business rules, affected boundaries, data/API impact, failure cases, and verification.
-- **Critical**: add trust boundaries, authorization, sensitive data, concurrency, idempotency, migration, rollback, observability, and deployment compatibility where relevant.
+- **Quick**: create an SRS only when explicitly requested. Keep the required metadata, scope, actors, functional requirements, constraints, acceptance criteria, and traceability; mark inapplicable sections instead of inventing content.
+- **Standard**: include the complete structure below with user flows, interfaces, data, failure behavior, non-functional requirements, verification, and traceability.
+- **Critical**: add trust boundaries, authorization, sensitive data, concurrency, idempotency, migration, rollback, observability, operational recovery, and deployment compatibility where relevant.
 
-Omit sections that genuinely do not apply instead of filling them with generic prose. Mark unresolved material as an open decision rather than inventing an answer.
+Do not fill sections with generic prose. Use `N/A — <reason>` when a section genuinely does not apply. Record unresolved material as a named open decision with an owner when known and explain which requirements depend on it.
 
-## Required structure
+## Required SRS structure
 
 ```markdown
-# <Feature name>
+# Software Requirements Specification: <Product or feature>
 
-## Status
-- State: Draft | Approved | Implemented | Superseded
+## Document control
+- SRS ID: <stable identifier>
+- Version: <semantic document version>
+- Status: Draft | In Review | Approved | Implemented | Superseded
 - Owner: <person or team when known>
+- Reviewers: <roles or people when known>
 - Last updated: YYYY-MM-DD
+- Related artifacts: <issue, design, API contract, decision record>
 
-## Problem and outcome
-## In scope
-## Out of scope
-## Users and permissions
-## User flow
-## Functional requirements
-## Business rules
-## Data and API impact
-## Failure and edge cases
-## Non-functional requirements
-## Acceptance criteria
-## Verification strategy
-## Rollout and rollback
-## Open decisions
+## 1. Introduction
+### 1.1 Purpose
+### 1.2 Scope
+### 1.3 Intended audience
+### 1.4 Definitions and abbreviations
+### 1.5 References
+
+## 2. Overall description
+### 2.1 Product perspective and system boundary
+### 2.2 Product functions
+### 2.3 User classes and permissions
+### 2.4 Operating environment
+### 2.5 Constraints
+### 2.6 Assumptions and dependencies
+
+## 3. External interface requirements
+### 3.1 User interfaces
+### 3.2 Software and API interfaces
+### 3.3 Data interfaces
+### 3.4 Communications interfaces
+
+## 4. Specific requirements
+### 4.1 Functional requirements
+### 4.2 Business rules
+### 4.3 Data requirements
+### 4.4 Non-functional requirements
+### 4.5 Security and privacy requirements
+### 4.6 Failure, recovery, and edge-case requirements
+
+## 5. User flows and state transitions
+## 6. Verification and acceptance
+## 7. Requirements traceability matrix
+## 8. Design handoff constraints
+## 9. Rollout, migration, and rollback
+## 10. Open decisions
+## Appendices
 ```
 
-The Status block is document metadata, not workflow state. Do not claim Approved or Implemented without evidence.
+The document-control status is metadata, not workflow state. Never claim `Approved` or `Implemented` without evidence.
 
-## Writing rules
+## Requirement format
 
-### Problem and outcome
+Give each requirement a stable, unique identifier:
 
-State the current problem, who experiences it, and the observable outcome. Avoid describing implementation as the problem.
+- `FR-###`: functional behavior.
+- `BR-###`: business rule or invariant.
+- `DR-###`: data requirement.
+- `IR-###`: interface requirement.
+- `NFR-###`: measurable quality attribute.
+- `SEC-###`: security or privacy requirement.
+- `ERR-###`: rejection, failure, recovery, or edge-case behavior.
 
-### Scope
+Write one requirement per statement. Use `shall` for mandatory behavior and avoid combining multiple obligations with `and` unless they are indivisible.
 
-Use concrete behavior for In scope. Put tempting adjacent work in Out of scope so implementation does not expand silently.
+```markdown
+### FR-012 — Submit a booking
+- Statement: The system shall create a booking only when the requested slot remains available at commit time.
+- Rationale: Prevent duplicate allocation during concurrent requests.
+- Source: User request / BR-004
+- Priority: Must
+- Preconditions: Authenticated user; valid facility and slot.
+- Inputs: facility_id, slot_id, request_id
+- Expected result: One committed booking with a stable identifier.
+- Failure behavior: Return the defined conflict response without creating a partial booking.
+- Verification: Integration test with competing requests.
+- Traces to: AC-007, TC-021
+```
 
-### Users and permissions
+Do not prescribe implementation unless it is an explicit constraint. Replace vague terms such as “fast”, “secure”, “user-friendly”, “normally”, or “as appropriate” with measurable behavior or an open decision.
 
-Name actors and the operations each may perform. For protected behavior, state where authorization is enforced. Do not rely only on hidden UI controls.
+## Edge-case-first requirements
 
-### User flow
+For every state-changing capability, define the primary success requirement and then give greater analytical depth to relevant adverse behavior:
 
-Describe the primary path in numbered steps. Add alternate flows only when they change data, permissions, money, or user recovery.
+- empty, missing, malformed, minimum, maximum, and over-limit inputs;
+- unauthorized and authenticated-but-forbidden actors;
+- duplicate submission, retry, timeout, and idempotency;
+- stale state, concurrent requests, ordering, and race conditions;
+- dependency failure, partial failure, offline behavior, and recovery;
+- empty, loading, error, and degraded UI states;
+- timezone, locale, money, encoding, and date-boundary behavior;
+- accessibility and keyboard-only operation for user interfaces.
 
-### Requirements
+Do not invent irrelevant edge cases to increase document length. Select them from the actual data, state transitions, trust boundaries, integrations, and failure cost.
 
-Use stable IDs when the spec is expected to evolve:
+## User interface requirements
 
-- `FR-01`, `FR-02` for functional requirements.
-- `BR-01`, `BR-02` for business rules.
-- `NFR-01`, `NFR-02` for non-functional requirements.
-- `AC-01`, `AC-02` for acceptance criteria.
+Describe observable states and behavior rather than visual taste. Include when relevant:
 
-Each requirement must be testable and trace to the user's request, a project rule, existing behavior, or a necessary safety invariant.
+- viewport and supported-browser constraints;
+- loading, empty, error, disabled, validation, success, and retry states;
+- focus order, keyboard operation, accessible names, contrast, and error association;
+- preservation or reset of user input after failure;
+- responsive reflow and content overflow;
+- browser navigation, refresh, deep link, and session-expiry behavior.
 
-### Data and API impact
+Link critical UI behavior to E2E acceptance criteria. Keep detailed brand and visual design in the project's design system or design artifact rather than duplicating it in the SRS.
 
-Describe affected entities, ownership, validation, state transitions, API contracts, compatibility, migration, and generated clients. Do not design tables or endpoints that are unnecessary for the behavior.
+## Verification and acceptance
 
-### Failure and edge cases
+Every Must requirement needs a verification method: inspection, static analysis, unit, integration, contract, UI interaction, end-to-end, performance, security, or explicit manual evaluation. Map acceptance criteria to requirements and give rejection, boundary, or recovery criteria more coverage than duplicate happy-path variants.
 
-Cover validation, missing permissions, retries, duplicate requests, partial external failures, stale state, time boundaries, and concurrency only where relevant.
+Write acceptance criteria as observable Given/When/Then statements or equivalently precise assertions. Retain at least one representative happy path for each critical user journey.
 
-### Acceptance criteria
+## Traceability matrix
 
-Write observable Given/When/Then statements or equivalently precise assertions. Include at least one rejection or recovery criterion for state-changing behavior.
+Include at least:
 
-### Verification strategy
+| Requirement | Source | Design element | Acceptance criteria | Verification method | Test or evidence | Status |
+|---|---|---|---|---|---|---|
+| FR-001 | User request | Planned | AC-001 | E2E | TC-E2E-001 | Planned |
+| ERR-003 | Risk analysis | Planned | AC-006 | Integration | TC-INT-014 | Planned |
 
-Map each important requirement or acceptance criterion to unit, integration, contract, end-to-end, static, or manual evidence. Avoid arbitrary coverage targets.
+Do not fabricate test IDs or completion status. Use `Planned` and leave evidence blank until tests exist and run.
 
-### Rollout and rollback
+## Design handoff
 
-Required for Critical changes and optional otherwise. Separate code readiness from authorization to deploy.
+The approved SRS is the behavioral baseline for [design](design.md). Design must preserve requirement IDs and fill the `Design element` traceability column without rewriting the requirement statement. When design exposes a contradiction, infeasible constraint, or missing decision, revise and version the SRS explicitly before implementation.
 
 ## Review checklist
 
-Before delivering the spec, verify:
+Before delivering the SRS, verify:
 
-- The outcome and boundaries are unambiguous.
-- Requirements do not contradict project rules or current architecture without calling out the proposed change.
-- Permissions and ownership are explicit where applicable.
-- State-changing behavior defines failure, retry, and duplicate handling where needed.
-- Money and time use exact representations and explicit business timezone semantics where needed.
-- Acceptance criteria cover the primary path and material failure paths.
-- Open decisions name who must decide and why implementation depends on them.
-- No secrets, private customer data, or unsupported production claims appear in the document.
+- The system boundary, actors, permissions, assumptions, and external interfaces are explicit.
+- Each requirement is singular, necessary, feasible, unambiguous, implementation-independent where possible, and verifiable.
+- IDs are unique and traceability has no orphan Must requirement.
+- The design handoff identifies which requirements need component, data, interface, UI-state, security, migration, or recovery decisions.
+- Conflicts with current behavior or architecture are called out rather than silently normalized.
+- State-changing behavior covers validation, authorization, retry, duplicate, failure, and recovery where relevant.
+- Money and time use exact representations and explicit business timezone semantics where relevant.
+- UI requirements cover meaningful loading, empty, error, responsive, keyboard, and accessibility behavior.
+- Open decisions identify their impact and who should decide when known.
+- No credentials, private customer data, or unsupported production claims appear.
 
-If the user requested only a specification, deliver it and stop. Offer implementation as a separate next action rather than starting it automatically.
+If the user requested only an SRS, deliver it and stop. Do not infer authorization to implement it.
